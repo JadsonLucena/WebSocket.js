@@ -174,4 +174,39 @@ class WebSocket extends EventEmitter {
 
     }
 
+    #encode(message, opcode) {
+
+        let size = message.length;
+
+        let buffer;
+        if (size <= 125) {
+
+            buffer = Buffer.alloc(size + 2 + 0);            
+            buffer.writeUInt8(0x80 | opcode, 0);
+            buffer.writeUInt8(size, 1);
+            message.copy(buffer, 2);
+
+        } else if (size <= 65535) {
+
+            buffer = Buffer.alloc(size + 2 + 2);            
+            buffer.writeUInt8(0x80 | opcode, 0);
+            buffer.writeUInt8(126, 1);
+            buffer.writeUInt16BE(size, 2);
+            message.copy(buffer, 4);
+
+        } else { // This implementation cannot handle lengths greater than 2^32
+
+            buffer = Buffer.alloc(size + 2 + 8);            
+            buffer.writeUInt8(0x80 | opcode, 0);
+            buffer.writeUInt8(127, 1);
+            buffer.writeUInt32BE(0, 2);
+            buffer.writeUInt32BE(size, 6);
+            message.copy(buffer, 10);
+
+        }
+
+        return buffer;
+
+    }
+
 };
