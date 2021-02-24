@@ -80,6 +80,7 @@ class WebSocket extends EventEmitter {
 
 
                 let next = Buffer.alloc(0);
+                let frames = [];
                 socket.on('data', (data) => {
 
                     if (clientId in this.#clients) {
@@ -121,6 +122,24 @@ class WebSocket extends EventEmitter {
                             next = data[index].next;
 
                         } else {
+
+                            for (let decoded of data) {
+
+                                if (decoded == null) {
+
+                                    this.emit('close', clientId, {code: 1003, message:  'Unacceptable Data Type'});
+
+                                    this.close(clientId);
+
+                                } else if ((decoded.payloadLength + frames.map(frameDecoded => frameDecoded.payloadLength).reduce((acc, cur) => acc + cur, 0)) > this.#maxPayload) {
+
+                                    this.emit('close', clientId, {code: 1009, message:  'Message Too Big'});
+
+                                    this.close(clientId);
+
+                                }
+
+                            }
 
                         }
 
