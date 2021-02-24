@@ -78,6 +78,56 @@ class WebSocket extends EventEmitter {
                     }
                 };
 
+
+                let next = Buffer.alloc(0);
+                socket.on('data', (data) => {
+
+                    if (clientId in this.#clients) {
+
+                        data = [this.#decode(Buffer.concat([next, data]))];
+
+                        let index = 0;
+
+                        // Ensures that until the last frame is processed, if it comes concatenated
+                        while (true) {
+
+                            if (data[index] && !data[index].waiting && data[index].next.length) {
+
+                                data.push(this.#decode(data[index].next));
+                                
+                                index++;
+
+                                if (data[index] && !data[index].waiting && (data[index].FIN && data[index].payloadData.length == data[index].payloadLength)) {
+
+                                    data[index - 1].next = Buffer.alloc(0);
+
+                                } else {
+
+                                    break;
+
+                                }
+
+                            } else {
+
+                                break;
+
+                            }
+
+                        }
+
+                        // Ensures that it will only follow when the entire frame arrives
+                        if (data[index] && data[index].waiting) {
+
+                            next = data[index].next;
+
+                        } else {
+
+                        }
+
+                    }
+
+                });
+
             }
 
         });
