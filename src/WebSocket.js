@@ -66,6 +66,18 @@ class WebSocket extends EventEmitter {
                 /* End generate unique ID */
 
 
+                this.#clients[clientId] = {
+                    socket: socket,
+                    ping: {
+                        timer: null,
+                        content: crypto.randomBytes(5).toString('hex')
+                    },
+                    pong: {
+                        timer: null,
+                        timerSecurity: null
+                    }
+                };
+
             }
 
         });
