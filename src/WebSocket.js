@@ -128,6 +128,9 @@ class WebSocket extends EventEmitter {
 
                 });
 
+
+                this.emit('open', clientId);
+
             }
 
         });
