@@ -137,6 +137,22 @@ class WebSocket extends EventEmitter {
 
                                     this.close(clientId);
 
+                                } else if (decoded.opcode == 0) { // Denotes a continuation frame
+
+                                } else if (decoded.opcode == 1) { // Denotes a text frame
+
+                                } else if (decoded.opcode == 2) { // Denotes a binary frame (blob, arraybuffer)
+
+                                } else if (decoded.opcode >= 3 && decoded.opcode <= 7) { // Are reserved for further non-control frames
+
+                                } else if (decoded.opcode == 8) { // Denotes a connection close
+
+                                } else if (decoded.opcode == 9) { // Denotes a ping (the max payload length is 125)
+
+                                } else if (decoded.opcode == 10) { // Denotes a pong (the max payload length is 125)
+
+                                } else { // Are reserved for further control frames
+
                                 }
 
                             }
