@@ -429,4 +429,33 @@ class WebSocket extends EventEmitter {
 
     }
 
+    ping(clientId, pongTimeout = this.#pongTimeout) {
+
+        if (clientId in this.#clients && !this.#clients[clientId].socket.destroyed) {
+
+            this.#clients[clientId].ping.content = clientId;
+
+            // Closes the connection if not answered correctly in a timely manner
+            if (pongTimeout >= 0) {
+
+                this.#clients[clientId].ping.timer = setTimeout(() => {
+
+                    this.emit('close', clientId, {code: 1011, message:  'Unexpected Condition'});
+
+                    this.close(clientId);
+
+                }, pongTimeout);
+
+            }
+
+            return this.#clients[clientId].socket.write(this.#encode(Buffer.from(this.#clients[clientId].ping.content, 'utf8'), 0x9));
+
+        } else {
+
+            return null;
+
+        }
+
+    }
+
 };
