@@ -148,6 +148,17 @@ class WebSocket extends EventEmitter {
     get pongTimeout() { return this.#pongTimeout }
 
 
+    set allowOrigin(allowOrigin = null) { this.#allowOrigin = allowOrigin }
+
+    set encoding(encoding = 'utf8') { this.#encoding = encoding }
+
+    set limitByIP(limitByIP = 256) { this.#limitByIP = limitByIP }
+
+    set maxPayload(maxPayload = 131072 * 20) { this.#maxPayload = maxPayload }
+
+    set pongTimeout(pongTimeout = 5000) { this.#pongTimeout = pongTimeout }
+
+
     #decode(payload) { // Input buffer binary
 
         let FIN = (payload[0] & 0x80) == 0x80; // 1 bit
