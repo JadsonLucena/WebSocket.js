@@ -159,6 +159,18 @@ class WebSocket extends EventEmitter {
 
                                 } else if (decoded.opcode == 2) { // Denotes a binary frame (blob, arraybuffer)
 
+                                    if (decoded.FIN && decoded.payloadData.length == decoded.payloadLength) {
+
+                                        this.emit(customEvent, clientId, decoded.payloadData);
+
+                                    } else {
+
+                                        frames.push(decoded);
+
+                                    }
+
+                                    next = decoded.next;
+
                                 } else if (decoded.opcode >= 3 && decoded.opcode <= 7) { // Are reserved for further non-control frames
 
                                 } else if (decoded.opcode == 8) { // Denotes a connection close
