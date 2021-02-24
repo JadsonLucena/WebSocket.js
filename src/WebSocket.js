@@ -79,6 +79,10 @@ class WebSocket extends EventEmitter {
                 };
 
 
+                // let customEvent = request.path != '/' ? request.path : 'message';
+                let customEvent = request.url != '/' ? request.url : 'message';
+
+
                 let next = Buffer.alloc(0);
                 let frames = [];
                 socket.on('data', (data) => {
@@ -140,6 +144,18 @@ class WebSocket extends EventEmitter {
                                 } else if (decoded.opcode == 0) { // Denotes a continuation frame
 
                                 } else if (decoded.opcode == 1) { // Denotes a text frame
+
+                                    if (decoded.FIN && decoded.payloadData.length == decoded.payloadLength) {
+
+                                        this.emit(customEvent, clientId, decoded.payloadData.toString(this.#encoding));
+
+                                    } else {
+
+                                        frames.push(decoded);
+
+                                    }
+
+                                    next = decoded.next;
 
                                 } else if (decoded.opcode == 2) { // Denotes a binary frame (blob, arraybuffer)
 
