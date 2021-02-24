@@ -219,6 +219,23 @@ class WebSocket extends EventEmitter {
 
                                 } else if (decoded.opcode == 10) { // Denotes a pong (the max payload length is 125)
 
+                                    if (decoded.payloadLength <= 125) {
+
+                                        if (decoded.payloadData.toString('utf8') == this.#clients[clientId].ping.content) {
+
+                                            this.#clients[clientId].ping.content = crypto.randomBytes(5).toString('hex');
+                                            clearTimeout(this.#clients[clientId].ping.timer);
+
+                                        }
+
+                                    } else {
+
+                                        this.emit('close', clientId, {code: 1003, message:  'Unacceptable Data Type'});
+
+                                        this.close(clientId);
+
+                                    }
+
                                 } else { // Are reserved for further control frames
 
                                     this.emit('close', clientId, {code: 1003, message:  'Unacceptable Data Type'});
