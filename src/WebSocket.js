@@ -284,4 +284,34 @@ class WebSocket extends EventEmitter {
 
     }
 
+
+    close(clientId) {
+
+        if (clientId in this.#clients) {
+
+            if (!this.#clients[clientId].socket.destroyed) {
+
+                this.#clients[clientId].socket.end();
+                this.#clients[clientId].socket.destroy();
+
+            }
+
+            if (this.#clients[clientId].socket.destroyed) {
+
+                return delete this.#clients[clientId];
+
+            } else {
+
+                return false;
+
+            }
+
+        } else {
+
+            return null;
+
+        }
+
+    }
+
 };
