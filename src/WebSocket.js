@@ -217,6 +217,39 @@ class WebSocket extends EventEmitter {
 
                                 } else if (decoded.opcode == 9) { // Denotes a ping (the max payload length is 125)
 
+                                    if (decoded.payloadLength <= 125) {
+
+                                        clearTimeout(this.#clients[clientId].pong.timer);
+                                        this.#clients[clientId].pong.timer = setTimeout(() => { // Avoid sending more than one pong simultaneously
+
+                                            socket.write(this.#encode(decoded.payloadData, 0xA)); // Send pong
+
+                                            clearTimeout(this.#clients[clientId].pong.timerSecurity);
+                                            this.#clients[clientId].pong.timerSecurity = null;
+
+                                        }, 3000);
+
+                                        // Prevents DDOS attack
+                                        if (this.#clients[clientId].pong.timerSecurity == null) {
+
+                                            this.#clients[clientId].pong.timerSecurity = setTimeout(() => {
+
+                                                this.emit('close', clientId, {code: 1006, message:  'Closed Abnormally'});
+
+                                                this.close(clientId);
+
+                                            }, 3000 * 3);
+
+                                        }
+
+                                    } else {
+
+                                        this.emit('close', clientId, {code: 1003, message:  'Unacceptable Data Type'});
+
+                                        this.close(clientId);
+
+                                    }
+
                                 } else if (decoded.opcode == 10) { // Denotes a pong (the max payload length is 125)
 
                                     if (decoded.payloadLength <= 125) {
