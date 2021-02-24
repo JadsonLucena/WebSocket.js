@@ -195,6 +195,10 @@ class WebSocket extends EventEmitter {
 
                                 } else if (decoded.opcode == 8) { // Denotes a connection close
 
+                                    this.emit('close', clientId, {code: 1000, message:  'Close Normal'});
+
+                                    this.close(clientId);
+
                                 } else if (decoded.opcode == 9) { // Denotes a ping (the max payload length is 125)
 
                                 } else if (decoded.opcode == 10) { // Denotes a pong (the max payload length is 125)
