@@ -84,4 +84,94 @@ class WebSocket extends EventEmitter {
 
     }
 
+    #decode(payload) { // Input buffer binary
+
+        let FIN = (payload[0] & 0x80) == 0x80; // 1 bit
+        let RSV1 = payload[0] & 0x40; // 1 bit
+        let RSV2 = payload[0] & 0x20; // 1 bit
+        let RSV3 = payload[0] & 0x10; // 1 bit
+        let opcode = payload[0] & 0x0F; // Low four bits
+        let MASK = (payload[1] & 0x80) == 0x80; // 1 bit
+
+        let payloadLength = payload[1] & 0x7F; // Low 7 bits, 7+16 bits, or 7+64 bits
+        let maskingKey = ''; // 0 or 4 bytes
+        let payloadData = Buffer.alloc(0); // (x+y) bytes
+        let extensionData = ''; // x bytes
+        let applicationData = ''; // y bytes
+
+
+        if (
+            // RSV1 || RSV2 || RSV3 ||
+            // ((opcode >= 3 && opcode <= 7) || opcode > 10) ||
+        !MASK) {
+
+            return null;
+
+        } else {
+
+            let index = 2;
+
+            if (payloadLength == 126) {
+
+                // if (payload.length < 2) {
+                //     return null;
+                // }
+
+                payloadLength = payload.readUInt16BE(2);
+                index += 2;
+
+            } else if (payloadLength == 127) {
+
+                // if (payload.length < 8) {
+                //     return null;
+                // }
+
+                if (payload.readUInt32BE(2) != 0) { // Discard high 4 bits because this server cannot handle huge lengths
+
+                    return null;
+
+                }
+
+                payloadLength = payload.readUInt32BE(6);
+                index += 8;
+
+            }
+
+            let waiting = false;
+            let next = null;
+            if (payload.length >= index + 4 + payloadLength) {
+
+                maskingKey = payload.slice(index, index + 4);
+
+                index += 4;
+
+                payloadData = payload.slice(index, index + payloadLength);
+                for (let i = 0; i < payloadData.length; i++) {
+
+                    payloadData[i] = payloadData[i] ^ maskingKey[i % 4];
+
+                }
+
+                next = payload.slice(index + payloadLength);
+
+            } else {
+
+                waiting = true;
+                next = payload;
+
+            }
+
+            return {
+                'FIN': FIN,
+                'opcode': opcode,
+                'payloadLength': payloadLength,
+                'payloadData': payloadData,
+                'next': next,
+                'waiting': waiting
+            };
+
+        }
+
+    }
+
 };
