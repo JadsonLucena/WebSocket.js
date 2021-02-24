@@ -59,6 +59,13 @@ class WebSocket extends EventEmitter {
                 socket.write(`HTTP/1.1 101 Switching Protocols\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${crypto.createHash('sha1').update(request.headers['sec-websocket-key'].trim() +'258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('base64')}\r\n\r\n`);
                 socket.setTimeout(0);
 
+
+                /* Begin generate unique ID */
+                let clientId;
+                while ((clientId = crypto.randomBytes(5).toString("hex")) in this.#clients);
+                /* End generate unique ID */
+
+
             }
 
         });
