@@ -134,6 +134,20 @@ class WebSocket extends EventEmitter {
 
     }
 
+
+    get allowOrigin() { return this.#allowOrigin }
+
+    get clients() { return Object.keys(this.#clients) }
+
+    get encoding() { return this.#encoding }
+
+    get limitByIP() { return this.#limitByIP }
+
+    get maxPayload() { return this.#maxPayload }
+
+    get pongTimeout() { return this.#pongTimeout }
+
+
     #decode(payload) { // Input buffer binary
 
         let FIN = (payload[0] & 0x80) == 0x80; // 1 bit
