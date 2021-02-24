@@ -143,6 +143,22 @@ class WebSocket extends EventEmitter {
 
                                 } else if (decoded.opcode == 0) { // Denotes a continuation frame
 
+                                    if (decoded.FIN && decoded.payloadData.length == decoded.payloadLength) {
+
+                                        if (decoded.opcode == 1) {
+
+                                            this.emit(customEvent, clientId, frames.splice(0, frames.push(decoded)).map(frameDecoded => frameDecoded.payloadData).reduce((acc, cur) => Buffer.concat([acc, cur])).toString(this.#encoding));
+
+                                        } else {
+
+                                            this.emit(customEvent, clientId, frames.splice(0, frames.push(decoded)).map(frameDecoded => frameDecoded.payloadData).reduce((acc, cur) => Buffer.concat([acc, cur])));
+
+                                        }
+
+                                    }
+
+                                    next = decoded.next;
+
                                 } else if (decoded.opcode == 1) { // Denotes a text frame
 
                                     if (decoded.FIN && decoded.payloadData.length == decoded.payloadLength) {
