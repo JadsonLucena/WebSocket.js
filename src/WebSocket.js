@@ -139,6 +139,16 @@ class WebSocket extends EventEmitter {
 
                 });
 
+                socket.on('error', e => {
+
+                    if (this.close(clientId)) {
+
+                        this.emit('error', clientId, e);
+
+                    }
+
+                });
+
 
                 this.emit('open', clientId);
 
