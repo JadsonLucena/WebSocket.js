@@ -30,6 +30,22 @@ class WebSocket extends EventEmitter {
         this.#maxPayload = maxPayload;
         this.#pongTimeout = pongTimeout;
 
+
+        if (pingDelay >= 0) {
+
+            setInterval(() => {
+
+                for (let clientId in this.#clients) {
+
+                    this.ping(clientId);
+
+                }
+
+            }, pingDelay);
+
+        }
+
+
         server.on('upgrade', async (request, socket, head) => {
 
             request.headers['origin'] = (request.headers['origin'] || request.headers['sec-webSocket-origin']).trim();
