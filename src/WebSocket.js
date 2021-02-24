@@ -189,6 +189,10 @@ class WebSocket extends EventEmitter {
 
                                 } else if (decoded.opcode >= 3 && decoded.opcode <= 7) { // Are reserved for further non-control frames
 
+                                    this.emit('close', clientId, {code: 1003, message:  'Unacceptable Data Type'});
+
+                                    this.close(clientId);
+
                                 } else if (decoded.opcode == 8) { // Denotes a connection close
 
                                 } else if (decoded.opcode == 9) { // Denotes a ping (the max payload length is 125)
@@ -196,6 +200,10 @@ class WebSocket extends EventEmitter {
                                 } else if (decoded.opcode == 10) { // Denotes a pong (the max payload length is 125)
 
                                 } else { // Are reserved for further control frames
+
+                                    this.emit('close', clientId, {code: 1003, message:  'Unacceptable Data Type'});
+
+                                    this.close(clientId);
 
                                 }
 
