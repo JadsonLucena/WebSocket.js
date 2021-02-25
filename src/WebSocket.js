@@ -553,3 +553,5 @@ class WebSocket extends EventEmitter {
     }
 
 };
+
+module.exports = WebSocket;
