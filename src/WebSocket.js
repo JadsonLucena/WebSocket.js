@@ -524,4 +524,32 @@ class WebSocket extends EventEmitter {
 
     }
 
+    send(clientId, data, encoding = this.#encoding) {
+
+        let opcode = 0x2;
+
+        if (!Buffer.isBuffer(data)) {
+
+            if (typeof data == 'string') {
+
+                opcode = 0x1;
+
+            }
+
+            data = Buffer.from(data);
+
+        }
+
+        if (clientId in this.#clients && !this.#clients[clientId].socket.destroyed) {
+
+            return this.#clients[clientId].socket.write(this.#encode(data, opcode), encoding);
+
+        } else {
+
+            return null;
+
+        }
+
+    }
+
 };
