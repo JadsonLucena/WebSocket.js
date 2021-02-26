@@ -466,6 +466,21 @@ class WebSocket extends EventEmitter {
     }
 
 
+    bytesRead(clientId) {
+
+        if (clientId in this.#clients && !this.#clients[clientId].socket.destroyed) {
+
+            return this.#clients[clientId].socket.bytesRead;
+
+        } else {
+
+            return null;
+
+        }
+
+    }
+
+
     close(clientId) {
 
         if (clientId in this.#clients) {
