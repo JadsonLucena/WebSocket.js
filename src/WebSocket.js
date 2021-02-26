@@ -494,6 +494,20 @@ class WebSocket extends EventEmitter {
 
     }
 
+    isPaused(clientId) {
+
+        if (clientId in this.#clients && !this.#clients[clientId].socket.destroyed) {
+
+            return this.#clients[clientId].socket.isPaused();
+
+        } else {
+
+            return null;
+
+        }
+
+    }
+
 
     close(clientId) {
 
