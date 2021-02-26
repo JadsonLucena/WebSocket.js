@@ -538,6 +538,22 @@ class WebSocket extends EventEmitter {
 
     }
 
+    resume(clientId) {
+
+        if (clientId in this.#clients && !this.#clients[clientId].socket.destroyed) {
+
+            this.#clients[clientId].socket.resume();
+
+            return !this.#clients[clientId].socket.isPaused();
+
+        } else {
+
+            return null;
+
+        }
+
+    }
+
 
     close(clientId) {
 
