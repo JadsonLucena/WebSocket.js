@@ -554,6 +554,20 @@ class WebSocket extends EventEmitter {
 
     }
 
+    setEncoding(clientId, encoding = 'utf8') {
+
+        if (clientId in this.#clients && !this.#clients[clientId].socket.destroyed) {
+
+            return (this.#clients[clientId].socket.setEncoding(encoding) ? true : false);
+
+        } else {
+
+            return null;
+
+        }
+
+    }
+
 
     close(clientId) {
 
