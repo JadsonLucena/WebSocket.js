@@ -568,6 +568,20 @@ class WebSocket extends EventEmitter {
 
     }
 
+    setKeepAlive(clientId, enable = false, initialDelay = 0) {
+
+        if (clientId in this.#clients && !this.#clients[clientId].socket.destroyed) {
+
+            return (this.#clients[clientId].socket.setKeepAlive(enable, initialDelay) ? true : false);
+
+        } else {
+
+            return null;
+
+        }
+
+    }
+
 
     close(clientId) {
 
