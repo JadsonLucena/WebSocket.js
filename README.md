@@ -100,3 +100,53 @@ on(name: 'open', callback: (clientId: string) => void): void
 
 on(name: string = 'message', callback: (clientId: string, data: string | Buffer) => void): void // If the pathname is instantiated in the WebSocket constructor on the front-end, it must be referenced in place of the message name
 ```
+
+
+## How to use
+```javascript
+// Front-end
+const webSocket = new WebSocket((location.protocol == 'https:' ? 'wss://' : 'ws://') + location.host + '/path');
+
+// webSocket.binaryType = 'blob';
+// webSocket.binaryType = 'arraybuffer';
+
+webSocket.onclose = e => console.log('Close', e);
+
+webSocket.onerror = e => console.log('Error', e);
+
+webSocket.onopen = () => {
+
+    webSocket.send('Hello World');
+
+    webSocket.onmessage = (e) => console.log('Message', e);
+
+};
+```
+
+```javascript
+// Back-end
+const WebSocket = require('./WebSocket.js');
+
+var webSocket = new WebSocket(server);
+
+webSocket.on('open', clientId => console.log('Connect', clientId));
+
+webSocket.on('close', (clientId, e) => console.log('Close', clientId, e));
+
+webSocket.on('error', (clientId, e) => console.log('Error', clientId, e));
+
+// webSocket.on('message', (clientId, data) => {
+webSocket.on('/path', (clientId, data) => {
+
+    console.log('Data', clientId, data);
+
+    // Single Client
+    webSocket.send(clientId, data);
+
+    // Broadcast
+    webSocket.clients.forEach(id => webSocket.send(id, data));
+
+});
+```
+
+> If the methods return null, it indicates that the given id does not match an active user.
