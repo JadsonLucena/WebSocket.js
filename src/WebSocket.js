@@ -582,6 +582,20 @@ class WebSocket extends EventEmitter {
 
     }
 
+    setNoDelay(clientId, noDelay = true) {
+
+        if (clientId in this.#clients && !this.#clients[clientId].socket.destroyed) {
+
+            return (this.#clients[clientId].socket.setNoDelay(noDelay) ? true : false);
+
+        } else {
+
+            return null;
+
+        }
+
+    }
+
 
     close(clientId) {
 
