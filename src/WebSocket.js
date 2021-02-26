@@ -480,6 +480,20 @@ class WebSocket extends EventEmitter {
 
     }
 
+    bytesWritten(clientId) {
+
+        if (clientId in this.#clients && !this.#clients[clientId].socket.destroyed) {
+
+            return this.#clients[clientId].socket.bytesWritten;
+
+        } else {
+
+            return null;
+
+        }
+
+    }
+
 
     close(clientId) {
 
