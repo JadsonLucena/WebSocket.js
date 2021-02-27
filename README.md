@@ -125,7 +125,7 @@ webSocket.onopen = () => {
 
 ```javascript
 // Back-end
-const WebSocket = require('./WebSocket.js');
+const WebSocket = require('@jadsonlucena/websocket'); // npm i @jadsonlucena/websocket
 
 var webSocket = new WebSocket(server);
 
