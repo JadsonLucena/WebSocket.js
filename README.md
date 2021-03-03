@@ -150,3 +150,14 @@ webSocket.on('/path', (clientId, data) => {
 ```
 
 > If the methods return null, it indicates that the given id does not match an active user.
+
+
+### References
+
+> [The WebSocket Protocol 13](https://tools.ietf.org/html/rfc6455)\
+> [The WebSocket Protocol 8](https://tools.ietf.org/html/draft-ietf-hybi-thewebsocketprotocol-08)\
+> [Extensions](https://www.iana.org/assignments/websocket/websocket.xml#extension-name)\
+> [Protocols](https://www.iana.org/assignments/websocket/websocket.xml#subprotocol-name)\
+> [Writing WebSocket servers](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers)
+
+> Book: The Definitive Guide to HTML5 WebSocket
