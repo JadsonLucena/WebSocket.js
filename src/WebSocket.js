@@ -78,7 +78,7 @@ class WebSocket extends EventEmitter {
 
                 /* Begin generate unique ID */
                 let clientId;
-                while ((clientId = crypto.randomBytes(5).toString("hex")) in this.#clients);
+                while ((clientId = crypto.randomBytes(5).toString('hex')) in this.#clients);
                 /* End generate unique ID */
 
 
@@ -91,12 +91,12 @@ class WebSocket extends EventEmitter {
                     pong: {
                         timer: null,
                         timerSecurity: null
-                    }
+                    },
+                    url: new URL(request.url, request.headers['origin'])
                 };
 
 
-                // let customEvent = request.path != '/' ? request.path : 'message';
-                let customEvent = request.url != '/' ? request.url : 'message';
+                let customEvent = this.#clients[clientId].url.pathname != '/' ? this.#clients[clientId].url.pathname : 'message';
 
 
                 let next = Buffer.alloc(0);
@@ -587,6 +587,21 @@ class WebSocket extends EventEmitter {
         if (clientId in this.#clients && !this.#clients[clientId].socket.destroyed) {
 
             return (this.#clients[clientId].socket.setNoDelay(noDelay) ? true : false);
+
+        } else {
+
+            return null;
+
+        }
+
+    }
+
+
+    url(clientId) {
+
+        if (clientId in this.#clients && !this.#clients[clientId].socket.destroyed) {
+
+            return this.#clients[clientId].url;
 
         } else {
 

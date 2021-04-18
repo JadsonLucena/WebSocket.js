@@ -79,6 +79,8 @@ pongTimeout(arg: number = 5000): void
     setNoDelay(clientId: string, noDelay: boolean = true): boolean | null
 /* Socket Methods End */
 
+url(clientId: string): URL | null // https://developer.mozilla.org/en-US/docs/Web/API/URL
+
 close(clientId: string): boolean | null
 
 ping(clientId: string, pongTimeout?: number): boolean | null
@@ -105,7 +107,7 @@ on(name: string = 'message', callback: (clientId: string, data: string | Buffer)
 ## How to use
 ```javascript
 // Front-end
-const webSocket = new WebSocket((location.protocol == 'https:' ? 'wss://' : 'ws://') + location.host + '/path');
+const webSocket = new WebSocket((location.protocol == 'https:' ? 'wss://' : 'ws://') + location.host + '/path?token=123');
 
 // webSocket.binaryType = 'blob';
 // webSocket.binaryType = 'arraybuffer';
@@ -129,7 +131,7 @@ const WebSocket = require('@jadsonlucena/websocket'); // npm i @jadsonlucena/web
 
 var webSocket = new WebSocket(server);
 
-webSocket.on('open', clientId => console.log('Connect', clientId));
+webSocket.on('open', clientId => console.log('Connect', clientId, webSocket.url(clientId)));
 
 webSocket.on('close', (clientId, e) => console.log('Close', clientId, e));
 
