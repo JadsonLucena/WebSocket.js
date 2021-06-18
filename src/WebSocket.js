@@ -12,10 +12,10 @@ class WebSocket extends EventEmitter {
 
     constructor(server, {
         allowOrigin = null, // The value should be similar to what Access-Control-Allow-Origin would receive
-        pingDelay = 1000 * 60 * 3,
         encoding = 'utf8',
         limitByIP = 256, // IP connection limit (Must be greater than zero)
         maxPayload = 131072 * 20, // (Max chrome 131072 bytes by frame)
+        pingDelay = 1000 * 60 * 3,
         pongTimeout = 5000
     } = {}) {
 
@@ -31,7 +31,7 @@ class WebSocket extends EventEmitter {
         this.#pongTimeout = pongTimeout;
 
 
-        if (pingDelay >= 0) {
+        if (pingDelay > 0) {
 
             setInterval(() => {
 
@@ -65,7 +65,7 @@ class WebSocket extends EventEmitter {
                 socket.end('HTTP/1.1 403 Forbidden\r\n\r\n');
                 socket.destroy();
 
-            } else if (this.#limitByIP >= 1 && Object.keys(this.#clients).filter(clientId => this.#clients[clientId].socket.remoteAddress == socket.remoteAddress).length + 1 > this.#limitByIP) {
+            } else if (this.#limitByIP > 0 && Object.keys(this.#clients).filter(clientId => this.#clients[clientId].socket.remoteAddress == socket.remoteAddress).length + 1 > this.#limitByIP) {
 
                 socket.end('HTTP/1.1 429 Too Many Requests\r\n\r\n');
                 socket.destroy();
@@ -101,7 +101,7 @@ class WebSocket extends EventEmitter {
 
                 let next = Buffer.alloc(0);
                 let frames = [];
-                socket.on('data', (data) => {
+                socket.on('data', data => {
 
                     if (clientId in this.#clients) {
 
@@ -151,7 +151,7 @@ class WebSocket extends EventEmitter {
 
                                     this.close(clientId);
 
-                                } else if ((decoded.payloadLength + frames.map(frameDecoded => frameDecoded.payloadLength).reduce((acc, cur) => acc + cur, 0)) > this.#maxPayload) {
+                                } else if (this.#maxPayload > 0 && (decoded.payloadLength + frames.map(frameDecoded => frameDecoded.payloadLength).reduce((acc, cur) => acc + cur, 0)) > this.#maxPayload) {
 
                                     this.emit('close', clientId, {code: 1009, message:  'Message Too Big'});
 
@@ -648,7 +648,7 @@ class WebSocket extends EventEmitter {
             this.#clients[clientId].ping.content = clientId;
 
             // Closes the connection if not answered correctly in a timely manner
-            if (pongTimeout >= 0) {
+            if (pongTimeout > 0) {
 
                 this.#clients[clientId].ping.timer = setTimeout(() => {
 

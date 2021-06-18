@@ -13,10 +13,10 @@ WebSocket(
     {
         allowOrigin = null, // Allowed domains
         encoding = 'utf8',
-        limitByIP = 256, // IP access limit
-        maxPayload = 2621440, // Maximum size in bytes that a message can be
-        pingDelay = 180000, // Delay in ms between sending ping's
-        pongTimeout = 5000 // Maximum pong waiting time in ms
+        limitByIP = 256, // IP access limit. if value less than 1, there will be no limit
+        maxPayload = 2621440, // Maximum size in bytes that a message can be. if value less than 1, there will be no limit
+        pingDelay = 180000, // Delay in ms between sending ping's. if value less than 1, ping's will not be sent
+        pongTimeout = 5000 // Maximum pong waiting time in ms. if value less than 1, there will be no limit
     }: {
         allowOrigin?: string | string[] | null,
         encoding?: 'utf8' | 'ascii' | 'base64' | 'hex' | 'binary' | 'utf16le' | 'ucs2',
@@ -150,9 +150,6 @@ webSocket.on('/path', (clientId, data) => {
 
 });
 ```
-
-> If the methods return null, it indicates that the given id does not match an active user.
-
 
 ### References
 
