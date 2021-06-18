@@ -115,18 +115,10 @@ class WebSocket extends EventEmitter {
                             if (data[index] && !data[index].waiting && data[index].next.length) {
 
                                 data.push(this.#decode(data[index].next));
-                                
+
+                                data[index].next = Buffer.alloc(0);
+
                                 index++;
-
-                                if (data[index] && !data[index].waiting && (data[index].FIN && data[index].payloadData.length == data[index].payloadLength)) {
-
-                                    data[index - 1].next = Buffer.alloc(0);
-
-                                } else {
-
-                                    break;
-
-                                }
 
                             } else {
 
@@ -159,7 +151,7 @@ class WebSocket extends EventEmitter {
 
                                 } else if (decoded.opcode == 0) { // Denotes a continuation frame
 
-                                    if (decoded.FIN && decoded.payloadData.length == decoded.payloadLength) {
+                                    if (decoded.FIN && !decoded.waiting) {
 
                                         if (decoded.opcode == 1) {
 
@@ -171,13 +163,17 @@ class WebSocket extends EventEmitter {
 
                                         }
 
+                                    } else {
+
+                                        frames.push(decoded);
+
                                     }
 
                                     next = decoded.next;
 
                                 } else if (decoded.opcode == 1) { // Denotes a text frame
 
-                                    if (decoded.FIN && decoded.payloadData.length == decoded.payloadLength) {
+                                    if (decoded.FIN && !decoded.waiting) {
 
                                         this.emit(customEvent, clientId, decoded.payloadData.toString(this.#encoding));
 
@@ -191,7 +187,7 @@ class WebSocket extends EventEmitter {
 
                                 } else if (decoded.opcode == 2) { // Denotes a binary frame (blob, arraybuffer)
 
-                                    if (decoded.FIN && decoded.payloadData.length == decoded.payloadLength) {
+                                    if (decoded.FIN && !decoded.waiting) {
 
                                         this.emit(customEvent, clientId, decoded.payloadData);
 
