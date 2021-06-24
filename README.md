@@ -14,16 +14,18 @@ WebSocket(
         allowOrigin = null, // Allowed domains
         encoding = 'utf8',
         limitByIP = 256, // IP access limit. if value less than 1, there will be no limit
-        maxPayload = 2621440, // Maximum size in bytes that a message can be. if value less than 1, there will be no limit
-        pingDelay = 180000, // Delay in ms between sending ping's. if value less than 1, ping's will not be sent
-        pongTimeout = 5000 // Maximum pong waiting time in ms. if value less than 1, there will be no limit
+        maxPayload = 131072 * 20, // Maximum size in bytes that a message can be. if value less than 1, there will be no limit
+        pingDelay = 3 * 60 * 1000, // Delay in ms between sending ping's. if value less than 1, ping's will not be sent
+        pongTimeout = 5 * 1000, // Maximum pong waiting time in ms. if value less than 1, there will be no limit
+        sessionExpires = 12 * 60 * 60 * 1000, // Maximum time in ms that an ID will be associated with the same client. If the value is less than 1, every time the client reconnects, a new ID will be generated
     }: {
         allowOrigin?: string | string[] | null,
         encoding?: 'utf8' | 'ascii' | 'base64' | 'hex' | 'binary' | 'utf16le' | 'ucs2',
         limitByIP?: number,
         maxPayload?: number,
         pingDelay?: number,
-        pongTimeout?: number
+        pongTimeout?: number,
+        sessionExpires?: number
     } = {}
 )
 ```
@@ -41,6 +43,8 @@ limitByIP(): number
 maxPayload(): number
 
 pongTimeout(): number
+
+sessionExpires(): number
 ```
 
 ```typescript
@@ -54,6 +58,8 @@ limitByIP(arg: number = 256): void
 maxPayload(arg: number = 2621440): void
 
 pongTimeout(arg: number = 5000): void
+
+sessionExpires(arg: number = 12 * 60 * 60 * 1000): void
 ```
 
 ```typescript

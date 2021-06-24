@@ -9,14 +9,16 @@ class WebSocket extends EventEmitter {
     #limitByIP;
     #maxPayload;
     #pongTimeout;
+    #sessionExpires;
 
     constructor(server, {
         allowOrigin = null, // The value should be similar to what Access-Control-Allow-Origin would receive
         encoding = 'utf8',
-        limitByIP = 256, // IP connection limit (Must be greater than zero)
+        limitByIP = 256,
         maxPayload = 131072 * 20, // (Max chrome 131072 bytes by frame)
-        pingDelay = 1000 * 60 * 3,
-        pongTimeout = 5000
+        pingDelay = 3 * 60 * 1000,
+        pongTimeout = 5 * 1000,
+        sessionExpires = 12 * 60 * 60 * 1000
     } = {}) {
 
         super({captureRejections: true});
@@ -29,6 +31,7 @@ class WebSocket extends EventEmitter {
         this.#limitByIP = limitByIP;
         this.#maxPayload = maxPayload;
         this.#pongTimeout = pongTimeout;
+        this.#sessionExpires = sessionExpires;
 
 
         if (pingDelay > 0) {
@@ -72,14 +75,40 @@ class WebSocket extends EventEmitter {
 
             } else {
 
-                socket.write(`HTTP/1.1 101 Switching Protocols\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${crypto.createHash('sha1').update(request.headers['sec-websocket-key'].trim() +'258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('base64')}\r\n\r\n`);
-                socket.setTimeout(0);
-
-
                 /* Begin generate unique ID */
-                let clientId;
-                while ((clientId = crypto.randomBytes(5).toString('hex')) in this.#clients);
+                let clientId = null;
+
+                if ('cookie' in request.headers) {
+
+                    request.headers['cookie'] = request.headers['cookie'].trim().split(';').map(cookie => cookie.trim().split('=')).reduce((acc, cur) => {
+
+                        acc[cur[0].trim()] = cur[1].trim();
+
+                        return acc;
+
+                    }, {});
+
+                    if ('jadsonlucena-websocket' in request.headers['cookie']) {
+
+                        clientId = request.headers['cookie']['jadsonlucena-websocket'];
+
+                    }
+
+                }
+
+                if (!clientId) {
+
+                    while ((clientId = crypto.createHash('sha1').update(socket.remoteAddress +'-'+ (new Date()).valueOf().toString() +'-'+ Math.random().toString()).digest('hex')) in this.#clients);
+
+                }
                 /* End generate unique ID */
+
+
+                let expires = new Date();
+                expires.setTime(expires.getTime() + this.#sessionExpires);
+
+                socket.write(`HTTP/1.1 101 Switching Protocols\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${crypto.createHash('sha1').update(request.headers['sec-websocket-key'].trim() +'258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('base64')}\r\nSet-Cookie: jadsonlucena-websocket=${clientId}; Expires=${expires.toGMTString()}\r\n\r\n`);
+                socket.setTimeout(0);
 
 
                 this.#clients[clientId] = {
@@ -324,6 +353,8 @@ class WebSocket extends EventEmitter {
 
     get pongTimeout() { return this.#pongTimeout }
 
+    get sessionExpires() { return this.#sessionExpires }
+
 
     set allowOrigin(allowOrigin = null) { this.#allowOrigin = allowOrigin }
 
@@ -333,7 +364,9 @@ class WebSocket extends EventEmitter {
 
     set maxPayload(maxPayload = 131072 * 20) { this.#maxPayload = maxPayload }
 
-    set pongTimeout(pongTimeout = 5000) { this.#pongTimeout = pongTimeout }
+    set pongTimeout(pongTimeout = 5 * 1000) { this.#pongTimeout = pongTimeout }
+
+    set sessionExpires(sessionExpires = 12 * 60 * 60 * 1000) { this.#sessionExpires = sessionExpires }
 
 
     #decode(payload) { // Input buffer binary
