@@ -42,6 +42,8 @@ limitByIP(): number
 
 maxPayload(): number
 
+pingDelay(): number
+
 pongTimeout(): number
 
 sessionExpires(): number
@@ -55,9 +57,11 @@ encoding(arg: ('utf8' | 'ascii' | 'base64' | 'hex' | 'binary' | 'utf16le' | 'ucs
 
 limitByIP(arg: number = 256): void
 
-maxPayload(arg: number = 2621440): void
+maxPayload(arg: number = 131072 * 20): void
 
-pongTimeout(arg: number = 5000): void
+pingDelay(arg: number = 3 * 60 * 1000): void
+
+pongTimeout(arg: number = 5 * 1000): void
 
 sessionExpires(arg: number = 12 * 60 * 60 * 1000): void
 ```
@@ -112,8 +116,42 @@ on(name: string = 'message', callback: (clientId: string, data: string | Buffer)
 
 ## How to use
 ```javascript
+// Back-end
+const server = require('http').createServer((req, res) => res.end()).listen(80); // Although this is a minimalist http server, https is better suited
+
+const WebSocket = require('@jadsonlucena/websocket'); // npm i @jadsonlucena/websocket
+
+var webSocket = new WebSocket(server);
+
+webSocket.on('open', clientId => console.log('Connect', clientId, webSocket.url(clientId)));
+
+webSocket.on('close', (clientId, e) => console.log('Close', clientId, e));
+
+webSocket.on('error', (clientId, e) => console.log('Error', clientId, e));
+
+// webSocket.on('message', (clientId, data) => {
+webSocket.on('/chat', (clientId, data) => {
+
+    console.log('Data', clientId, data);
+
+    // Single Client
+    webSocket.send(clientId, data);
+
+    // Broadcast
+    webSocket.clients.forEach(id => webSocket.send(id, data));
+
+});
+```
+
+```javascript
 // Front-end
-const webSocket = new WebSocket((location.protocol == 'https:' ? 'wss://' : 'ws://') + location.host + '/path?token=123');
+
+//https://datatracker.ietf.org/doc/html/rfc6455#section-3
+const port = ''; // https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.3
+const path = '/chat'; // https://datatracker.ietf.org/doc/html/rfc3986#section-3.3
+const query = '?token=123'; // https://datatracker.ietf.org/doc/html/rfc3986#section-3.4
+
+const webSocket = new WebSocket((location.protocol == 'https:' ? 'wss://' : 'ws://') + location.host + port + path + query);
 
 // webSocket.binaryType = 'blob';
 // webSocket.binaryType = 'arraybuffer';
@@ -131,31 +169,7 @@ webSocket.onopen = () => {
 };
 ```
 
-```javascript
-// Back-end
-const WebSocket = require('@jadsonlucena/websocket'); // npm i @jadsonlucena/websocket
-
-var webSocket = new WebSocket(server);
-
-webSocket.on('open', clientId => console.log('Connect', clientId, webSocket.url(clientId)));
-
-webSocket.on('close', (clientId, e) => console.log('Close', clientId, e));
-
-webSocket.on('error', (clientId, e) => console.log('Error', clientId, e));
-
-// webSocket.on('message', (clientId, data) => {
-webSocket.on('/path', (clientId, data) => {
-
-    console.log('Data', clientId, data);
-
-    // Single Client
-    webSocket.send(clientId, data);
-
-    // Broadcast
-    webSocket.clients.forEach(id => webSocket.send(id, data));
-
-});
-```
+> By default, if the path in the frontend constructor is empty or "/", the listener in the backend will be "message". If you enter a path in the front-end, it must be specified in the back-end listener.
 
 ### References
 

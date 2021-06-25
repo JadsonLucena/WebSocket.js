@@ -1,52 +1,46 @@
 const EventEmitter = require('events');
 const crypto = require('crypto');
 
+const ALLOW_ORIGIN = null;
+const ENCODING = 'utf8';
+const LIMIT_BY_IP = 256;
+const MAX_PAYLOAD = 131072 * 20;
+const PING_DELAY = 3 * 60 * 1000;
+const PONG_TIMEOUT = 5 * 1000;
+const SESSION_EXPIRES = 12 * 60 * 60 * 1000;
+
 class WebSocket extends EventEmitter {
 
-    #allowOrigin;
-    #clients;
-    #encoding;
-    #limitByIP;
-    #maxPayload;
-    #pongTimeout;
-    #sessionExpires;
+    #allowOrigin = ALLOW_ORIGIN;
+    #clients = {};
+    #encoding = ENCODING;
+    #limitByIP = LIMIT_BY_IP;
+    #maxPayload = MAX_PAYLOAD;
+    #pingDelay = {time: PING_DELAY, timer: null};
+    #pongTimeout = PONG_TIMEOUT;
+    #sessionExpires = SESSION_EXPIRES;
 
     constructor(server, {
-        allowOrigin = null, // The value should be similar to what Access-Control-Allow-Origin would receive
-        encoding = 'utf8',
-        limitByIP = 256,
-        maxPayload = 131072 * 20, // (Max chrome 131072 bytes by frame)
-        pingDelay = 3 * 60 * 1000,
-        pongTimeout = 5 * 1000,
-        sessionExpires = 12 * 60 * 60 * 1000
+        allowOrigin = ALLOW_ORIGIN, // The value should be similar to what Access-Control-Allow-Origin would receive
+        encoding = ENCODING,
+        limitByIP = LIMIT_BY_IP,
+        maxPayload = MAX_PAYLOAD, // (Max chrome 131072 bytes by frame)
+        pingDelay = PING_DELAY,
+        pongTimeout = PONG_TIMEOUT,
+        sessionExpires = SESSION_EXPIRES
     } = {}) {
 
         super({captureRejections: true});
 
         this.setMaxListeners(0);
 
-        this.#allowOrigin = allowOrigin;
-        this.#clients = {};
-        this.#encoding = encoding;
-        this.#limitByIP = limitByIP;
-        this.#maxPayload = maxPayload;
-        this.#pongTimeout = pongTimeout;
-        this.#sessionExpires = sessionExpires;
-
-
-        if (pingDelay > 0) {
-
-            setInterval(() => {
-
-                for (let clientId in this.#clients) {
-
-                    this.ping(clientId);
-
-                }
-
-            }, pingDelay);
-
-        }
+        this.allowOrigin = allowOrigin;
+        this.encoding = encoding;
+        this.limitByIP = limitByIP;
+        this.maxPayload = maxPayload;
+        this.pingDelay = pingDelay;
+        this.pongTimeout = pongTimeout;
+        this.sessionExpires = sessionExpires;
 
 
         server.on('upgrade', async (request, socket, head) => {
@@ -351,22 +345,96 @@ class WebSocket extends EventEmitter {
 
     get maxPayload() { return this.#maxPayload }
 
+    get pingDelay() { return this.#pingDelay.time }
+
     get pongTimeout() { return this.#pongTimeout }
 
     get sessionExpires() { return this.#sessionExpires }
 
 
-    set allowOrigin(allowOrigin = null) { this.#allowOrigin = allowOrigin }
+    set allowOrigin(allowOrigin = ALLOW_ORIGIN) { 
 
-    set encoding(encoding = 'utf8') { this.#encoding = encoding }
+        if (allowOrigin == null || typeof allowOrigin == 'string' || (Array.isArray(allowOrigin) && allowOrigin.reduce((acc, cur) => acc && typeof cur == 'string', true))) {
 
-    set limitByIP(limitByIP = 256) { this.#limitByIP = limitByIP }
+            this.#allowOrigin = allowOrigin;
 
-    set maxPayload(maxPayload = 131072 * 20) { this.#maxPayload = maxPayload }
+        }
 
-    set pongTimeout(pongTimeout = 5 * 1000) { this.#pongTimeout = pongTimeout }
+    }
 
-    set sessionExpires(sessionExpires = 12 * 60 * 60 * 1000) { this.#sessionExpires = sessionExpires }
+    set encoding(encoding = ENCODING) { 
+
+        if (['utf8', 'ascii', 'base64', 'hex', 'binary', 'utf16le', 'ucs2'].includes(encoding)) {
+
+            this.#encoding = encoding;
+
+        }
+
+    }
+
+    set limitByIP(limitByIP = LIMIT_BY_IP) { 
+
+        if (typeof limitByIP == 'number') {
+
+            this.#limitByIP = limitByIP;
+
+        }
+
+    }
+
+    set maxPayload(maxPayload = MAX_PAYLOAD) { 
+
+        if (typeof maxPayload == 'number') {
+
+            this.#maxPayload = maxPayload;
+
+        }
+
+    }
+
+    set pingDelay(pingDelay = PING_DELAY) {
+
+        if (typeof pingDelay == 'number') {
+
+            clearInterval(this.#pingDelay.timer);
+
+            this.#pingDelay = {
+                time: pingDelay,
+                timer: (pingDelay > 0) ? setInterval(() => {
+
+                    for (let clientId in this.#clients) {
+
+                        this.ping(clientId);
+
+                    }
+
+                }, pingDelay) : null
+
+            };
+
+        }
+
+    }
+
+    set pongTimeout(pongTimeout = PONG_TIMEOUT) {
+
+        if (typeof pongTimeout == 'number') {
+
+            this.#pongTimeout = pongTimeout;
+
+        }
+
+    }
+
+    set sessionExpires(sessionExpires = SESSION_EXPIRES) {
+
+        if (typeof sessionExpires == 'number') {
+
+            this.#sessionExpires = sessionExpires;
+
+        }
+
+    }
 
 
     #decode(payload) { // Input buffer binary
@@ -583,7 +651,7 @@ class WebSocket extends EventEmitter {
 
     }
 
-    setEncoding(clientId, encoding = 'utf8') {
+    setEncoding(clientId, encoding = this.#encoding) {
 
         if (clientId in this.#clients && !this.#clients[clientId].socket.destroyed) {
 
