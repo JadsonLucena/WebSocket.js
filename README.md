@@ -4,12 +4,27 @@ A complete and minimalist WebSocket under the protocol [RFC-6455](https://tools.
 ## What is
 It is a socket type connection (real-time, bidirectional and persistent) where both parties (server and client) can sending data (Text, Blob or ArrayBuffer) at any time.
 
+## Features
+- [x] Supported websocket protocols: 8 and 13
+- [x] Supported HTTP2 protocol
+- [x] Supported ping and pong requests
+- [x] Supported sending and receiving types: Text, Blob and ArrayBuffer
+- [x] Supported sending and receiving encodings: utf8, ascii, base64, hex, binary, utf16le and ucs2
+- [x] Access-Control-Allow-Origin
+- [x] Limit of connections per ip
+- [x] Maximum data size
+- [x] Prevents DDOS ping and pong attack
+- [x] Fixed ID by session time
+- [x] Inheritance of socket methods
+- Supported extensions:
+    - [ ] permessage-deflate
+
 
 ## Interfaces
 ```typescript
 // Constructor
 WebSocket(
-    server: Server, // HTTP(s) Server Object
+    server: HttpServer, // HTTP(1.x or 2) Server Object
     {
         allowOrigin = null, // Allowed domains
         encoding = 'utf8',
@@ -51,19 +66,19 @@ sessionExpires(): number
 
 ```typescript
 // Setters
-allowOrigin(arg: (string | string[] | null) = null): void
+allowOrigin(arg?: (string | string[] | null) = null): void
 
-encoding(arg: ('utf8' | 'ascii' | 'base64' | 'hex' | 'binary' | 'utf16le' | 'ucs2') = 'utf8'): void
+encoding(arg?: ('utf8' | 'ascii' | 'base64' | 'hex' | 'binary' | 'utf16le' | 'ucs2') = 'utf8'): void
 
-limitByIP(arg: number = 256): void
+limitByIP(arg?: number = 256): void
 
-maxPayload(arg: number = 131072 * 20): void
+maxPayload(arg?: number = 131072 * 20): void
 
-pingDelay(arg: number = 3 * 60 * 1000): void
+pingDelay(arg?: number = 3 * 60 * 1000): void
 
-pongTimeout(arg: number = 5 * 1000): void
+pongTimeout(arg?: number = 5 * 1000): void
 
-sessionExpires(arg: number = 12 * 60 * 60 * 1000): void
+sessionExpires(arg?: number = 12 * 60 * 60 * 1000): void
 ```
 
 ```typescript
@@ -117,11 +132,11 @@ on(name: string = 'message', callback: (clientId: string, data: string | Buffer)
 ## How to use
 ```javascript
 // Back-end
-const server = require('http').createServer((req, res) => res.end()).listen(80); // Although this is a minimalist http server, https is better suited
+const HttpServer = require('http').createServer((req, res) => res.end()).listen(80); // Although this is a minimalist HTTP server, HTTPs or HTTP2 are more suitable
 
 const WebSocket = require('@jadsonlucena/websocket'); // npm i @jadsonlucena/websocket
 
-var webSocket = new WebSocket(server);
+var webSocket = new WebSocket(HttpServer);
 
 webSocket.on('open', clientId => console.log('Connect', clientId, webSocket.url(clientId)));
 
