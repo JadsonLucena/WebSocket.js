@@ -92,7 +92,7 @@ class WebSocket extends EventEmitter {
 
                 if (!clientId) {
 
-                    while ((clientId = crypto.createHash('sha1').update(socket.remoteAddress +'-'+ (new Date()).valueOf().toString() +'-'+ Math.random().toString()).digest('hex')) in this.#clients);
+                    while ((clientId = crypto.randomUUID()) in this.#clients);
 
                 }
                 /* End generate unique ID */
