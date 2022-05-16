@@ -1,33 +1,25 @@
 const EventEmitter = require('events');
 const crypto = require('crypto');
 
-const ALLOW_ORIGIN = null;
-const ENCODING = 'utf8';
-const LIMIT_BY_IP = 256;
-const MAX_PAYLOAD = 131072 * 20;
-const PING_DELAY = 3 * 60 * 1000;
-const PONG_TIMEOUT = 5 * 1000;
-const SESSION_EXPIRES = 12 * 60 * 60 * 1000;
-
 class WebSocket extends EventEmitter {
 
-    #allowOrigin = ALLOW_ORIGIN;
-    #clients = {};
-    #encoding = ENCODING;
-    #limitByIP = LIMIT_BY_IP;
-    #maxPayload = MAX_PAYLOAD;
-    #pingDelay = {time: PING_DELAY, timer: null};
-    #pongTimeout = PONG_TIMEOUT;
-    #sessionExpires = SESSION_EXPIRES;
+    #allowOrigin;
+    #clients;
+    #encoding;
+    #limitByIP;
+    #maxPayload;
+    #pingDelay;
+    #pongTimeout;
+    #sessionExpires;
 
     constructor(server, {
-        allowOrigin = ALLOW_ORIGIN, // The value should be similar to what Access-Control-Allow-Origin would receive
-        encoding = ENCODING,
-        limitByIP = LIMIT_BY_IP,
-        maxPayload = MAX_PAYLOAD, // (Max chrome 131072 bytes by frame)
-        pingDelay = PING_DELAY,
-        pongTimeout = PONG_TIMEOUT,
-        sessionExpires = SESSION_EXPIRES
+        allowOrigin = null, // The value should be similar to what Access-Control-Allow-Origin would receive
+        encoding = 'utf8',
+        limitByIP = 256,
+        maxPayload = 131072 * 20, // (Max chrome 131072 bytes by frame)
+        pingDelay = 3 * 60 * 1000,
+        pongTimeout = 5 * 1000,
+        sessionExpires = 12 * 60 * 60 * 1000
     } = {}) {
 
         super({captureRejections: true});
@@ -35,6 +27,7 @@ class WebSocket extends EventEmitter {
         this.setMaxListeners(0);
 
         this.allowOrigin = allowOrigin;
+        this.#clients = {};
         this.encoding = encoding;
         this.limitByIP = limitByIP;
         this.maxPayload = maxPayload;
@@ -352,7 +345,7 @@ class WebSocket extends EventEmitter {
     get sessionExpires() { return this.#sessionExpires }
 
 
-    set allowOrigin(allowOrigin = ALLOW_ORIGIN) { 
+    set allowOrigin(allowOrigin = null) { 
 
         if (allowOrigin == null || typeof allowOrigin == 'string' || (Array.isArray(allowOrigin) && allowOrigin.reduce((acc, cur) => acc && typeof cur == 'string', true))) {
 
@@ -362,7 +355,7 @@ class WebSocket extends EventEmitter {
 
     }
 
-    set encoding(encoding = ENCODING) { 
+    set encoding(encoding = 'utf8') { 
 
         if (['utf8', 'ascii', 'base64', 'hex', 'binary', 'utf16le', 'ucs2'].includes(encoding)) {
 
@@ -372,7 +365,7 @@ class WebSocket extends EventEmitter {
 
     }
 
-    set limitByIP(limitByIP = LIMIT_BY_IP) { 
+    set limitByIP(limitByIP = 256) { 
 
         if (typeof limitByIP == 'number') {
 
@@ -382,7 +375,7 @@ class WebSocket extends EventEmitter {
 
     }
 
-    set maxPayload(maxPayload = MAX_PAYLOAD) { 
+    set maxPayload(maxPayload = 131072 * 20) { 
 
         if (typeof maxPayload == 'number') {
 
@@ -392,7 +385,7 @@ class WebSocket extends EventEmitter {
 
     }
 
-    set pingDelay(pingDelay = PING_DELAY) {
+    set pingDelay(pingDelay = 3 * 60 * 1000) {
 
         if (typeof pingDelay == 'number') {
 
@@ -416,7 +409,7 @@ class WebSocket extends EventEmitter {
 
     }
 
-    set pongTimeout(pongTimeout = PONG_TIMEOUT) {
+    set pongTimeout(pongTimeout = 5 * 1000) {
 
         if (typeof pongTimeout == 'number') {
 
@@ -426,7 +419,7 @@ class WebSocket extends EventEmitter {
 
     }
 
-    set sessionExpires(sessionExpires = SESSION_EXPIRES) {
+    set sessionExpires(sessionExpires = 12 * 60 * 60 * 1000) {
 
         if (typeof sessionExpires == 'number') {
 
