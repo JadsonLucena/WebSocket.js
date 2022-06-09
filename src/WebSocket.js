@@ -36,21 +36,21 @@ class WebSocket extends EventEmitter {
         this.sessionExpires = sessionExpires;
 
 
-        server.on('upgrade', async (request, socket, head) => {
+        server.on('upgrade', async (req, socket, head) => {
 
-            request.headers['origin'] = (request.headers['origin'] || request.headers['sec-webSocket-origin']).trim();
+            req.headers['origin'] = (req.headers['origin'] || req.headers['sec-webSocket-origin']).trim();
 
-            if (request.headers['upgrade'].trim() != 'websocket') {
+            if (req.headers['upgrade'].trim() != 'websocket') {
 
                 socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
                 socket.destroy();
 
-            } else if (!/^(8|13)$/.test(+request.headers['sec-websocket-version'].trim())) {
+            } else if (!/^(8|13)$/.test(+req.headers['sec-websocket-version'].trim())) {
 
                 socket.end('HTTP/1.1 426 Upgrade Required\r\nSec-WebSocket-Version: 13, 8\r\n\r\n');
                 socket.destroy();
 
-            } if (!request.headers['origin'] || (!request.headers['origin'].includes(request.headers['host'].trim()) && (!this.#allowOrigin || (this.#allowOrigin != '*' && !this.#allowOrigin.includes(request.headers['origin']))))) {
+            } if (!req.headers['origin'] || (!req.headers['origin'].includes(req.headers['host'].trim()) && (!this.#allowOrigin || (this.#allowOrigin != '*' && !this.#allowOrigin.includes(req.headers['origin']))))) {
 
                 socket.end('HTTP/1.1 403 Forbidden\r\n\r\n');
                 socket.destroy();
@@ -65,25 +65,17 @@ class WebSocket extends EventEmitter {
                 /* Begin generate unique ID */
                 let clientId = null;
 
-                if ('cookie' in request.headers) {
+                const getCookies = await import('../getCookies.mjs/getCookies.mjs');
+                let cookies = getCookies.default(req.headers['cookie']);
 
-                    request.headers['cookie'] = request.headers['cookie'].trim().split(';').map(cookie => cookie.trim().split('=')).reduce((acc, cur) => {
+                if ('jadsonlucena-websocket' in cookies) {
 
-                        acc[cur[0].trim()] = cur[1].trim();
-
-                        return acc;
-
-                    }, {});
-
-                    if ('jadsonlucena-websocket' in request.headers['cookie']) {
-
-                        clientId = request.headers['cookie']['jadsonlucena-websocket'];
-
-                    }
+                    clientId = cookies['jadsonlucena-websocket'];
 
                 }
 
-                if (!clientId) {
+
+                if (!clientId || (clientId in this.#clients && !this.#clients[clientId].socket.destroyed)) {
 
                     while ((clientId = crypto.randomUUID()) in this.#clients);
 
@@ -94,7 +86,7 @@ class WebSocket extends EventEmitter {
                 let expires = new Date();
                 expires.setTime(expires.getTime() + this.#sessionExpires);
 
-                socket.write(`HTTP/1.1 101 Switching Protocols\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${crypto.createHash('sha1').update(request.headers['sec-websocket-key'].trim() +'258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('base64')}\r\nSet-Cookie: jadsonlucena-websocket=${clientId}; Expires=${expires.toGMTString()}\r\n\r\n`);
+                socket.write(`HTTP/1.1 101 Switching Protocols\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${crypto.createHash('sha1').update(req.headers['sec-websocket-key'].trim() +'258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('base64')}\r\nSet-Cookie: jadsonlucena-websocket=${clientId}; Expires=${expires.toGMTString()}\r\n\r\n`);
                 socket.setTimeout(0);
 
 
@@ -108,7 +100,7 @@ class WebSocket extends EventEmitter {
                         timer: null,
                         timerSecurity: null
                     },
-                    url: new URL(request.url, request.headers['origin'])
+                    url: new URL(req.url, req.headers['origin'])
                 };
 
 
@@ -389,7 +381,7 @@ class WebSocket extends EventEmitter {
 
         if (typeof pingDelay == 'number') {
 
-            clearInterval(this.#pingDelay.timer);
+            clearInterval(this.#pingDelay?.timer);
 
             this.#pingDelay = {
                 time: pingDelay,

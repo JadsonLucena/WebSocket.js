@@ -1,0 +1,4 @@
+[submodule "getCookies.mjs"]
+	path = getCookies.mjs
+	url = https://gist.github.com/JadsonLucena/06f44bdbfc8b9cb1a3c2d8917cfab99e
+	branch = main

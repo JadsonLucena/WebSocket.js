@@ -12,6 +12,7 @@
   },
   "files": [
     "src/",
+    "getCookies.mjs/",
     "README.md",
     "LICENSE"
   ],
