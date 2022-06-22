@@ -50,7 +50,7 @@ class WebSocket extends EventEmitter {
                 socket.end('HTTP/1.1 426 Upgrade Required\r\nSec-WebSocket-Version: 13, 8\r\n\r\n');
                 socket.destroy();
 
-            } if (!req.headers['origin'] || (!req.headers['origin'].includes(req.headers['host'].trim()) && (!this.#allowOrigin || (this.#allowOrigin != '*' && !this.#allowOrigin.includes(req.headers['origin']))))) {
+            } if (!req.headers['origin'].includes(req.headers['host'].trim()) || (this.#allowOrigin.length && !this.#allowOrigin.find(origin => origin == '*' || origin == req.headers['origin'].trim()))) {
 
                 socket.end('HTTP/1.1 403 Forbidden\r\n\r\n');
                 socket.destroy();
@@ -341,7 +341,7 @@ class WebSocket extends EventEmitter {
 
         if (allowOrigin == null || typeof allowOrigin == 'string' || (Array.isArray(allowOrigin) && allowOrigin.reduce((acc, cur) => acc && typeof cur == 'string', true))) {
 
-            this.#allowOrigin = allowOrigin;
+            this.#allowOrigin = [].concat(allowOrigin).reduce((acc, cur) => cur && cur.trim() ? acc.concat(cur.trim()) : acc, [])
 
         }
 
