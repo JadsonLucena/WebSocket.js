@@ -50,7 +50,7 @@ class WebSocket extends EventEmitter {
                 socket.end('HTTP/1.1 426 Upgrade Required\r\nSec-WebSocket-Version: 13, 8\r\n\r\n');
                 socket.destroy();
 
-            } if (!req.headers['origin'].includes(req.headers['host'].trim()) || (this.#allowOrigin.length && !this.#allowOrigin.find(origin => origin == '*' || origin == req.headers['origin'].trim()))) {
+            } if (!req.headers['origin'].includes(req.headers['host'].trim()) && !this.#allowOrigin.find(origin => origin == '*' || origin == req.headers['origin'].trim())) {
 
                 socket.end('HTTP/1.1 403 Forbidden\r\n\r\n');
                 socket.destroy();
