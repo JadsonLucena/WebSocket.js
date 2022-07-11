@@ -129,7 +129,7 @@ on(name: string = 'message', callback: (clientId: string, data: string | Buffer)
 ```
 
 
-## How to use
+## QuickStart
 ```javascript
 // Back-end
 const HttpServer = require('http').createServer((req, res) => res.end()).listen(80); // Although this is a minimalist HTTP server, HTTPs or HTTP2 are more suitable
@@ -162,11 +162,10 @@ webSocket.on('/chat', (clientId, data) => {
 // Front-end
 
 //https://datatracker.ietf.org/doc/html/rfc6455#section-3
-const port = ''; // https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.3
 const path = '/chat'; // https://datatracker.ietf.org/doc/html/rfc3986#section-3.3
 const query = '?token=123'; // https://datatracker.ietf.org/doc/html/rfc3986#section-3.4
 
-const webSocket = new WebSocket((location.protocol == 'https:' ? 'wss://' : 'ws://') + location.host + port + path + query);
+const webSocket = new WebSocket((location.protocol == 'https:' ? 'wss://' : 'ws://') + location.host + path + query);
 
 // webSocket.binaryType = 'blob';
 // webSocket.binaryType = 'arraybuffer';
