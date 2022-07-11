@@ -85,15 +85,15 @@ sessionExpires(arg?: number = 12 * 60 * 60 * 1000): void
 // Methods
 
 /* Socket Methods Begin (https://nodejs.org/docs/latest/api/net.html#net_class_net_socket) */
-    bytesRead(clientId: string): boolean
+    bytesRead(clientId: string): number
 
-    bytesWritten(clientId: string): boolean
+    bytesWritten(clientId: string): number
 
     isPaused(clientId: string): boolean
 
     pause(clientId: string): boolean
 
-    readyState(clientId: string): boolean
+    readyState(clientId: string): 'opening' | 'open' | 'readOnly' | 'writeOnly'
 
     resume(clientId: string): boolean
 
