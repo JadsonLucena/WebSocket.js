@@ -1,6 +1,6 @@
 {
   "name": "@jadsonlucena/websocket",
-  "version": "1.2.2",
+  "version": "2.0.0",
   "description": "A complete and minimalist WebSocket under the protocol RFC-6455",
   "main": "./src/WebSocket.js",
   "engines": {
@@ -18,7 +18,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JadsonLucena/WebSocket-Node.git"
+    "url": "git+https://github.com/JadsonLucena/WebSocket.js.git"
   },
   "keywords": [
     "websocket",
@@ -31,7 +31,7 @@
   "author": "JadsonLucena <jadsonlucena@gmail.com> (https://github.com/JadsonLucena)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/JadsonLucena/WebSocket-Node/issues"
+    "url": "https://github.com/JadsonLucena/WebSocket.js/issues"
   },
-  "homepage": "https://github.com/JadsonLucena/WebSocket-Node#readme"
+  "homepage": "https://github.com/JadsonLucena/WebSocket.js#readme"
 }
