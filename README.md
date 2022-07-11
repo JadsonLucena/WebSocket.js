@@ -85,36 +85,36 @@ sessionExpires(arg?: number = 12 * 60 * 60 * 1000): void
 // Methods
 
 /* Socket Methods Begin (https://nodejs.org/docs/latest/api/net.html#net_class_net_socket) */
-    bytesRead(clientId: string): boolean | null
+    bytesRead(clientId: string): boolean
 
-    bytesWritten(clientId: string): boolean | null
+    bytesWritten(clientId: string): boolean
 
-    isPaused(clientId: string): boolean | null
+    isPaused(clientId: string): boolean
 
-    pause(clientId: string): boolean | null
+    pause(clientId: string): boolean
 
-    readyState(clientId: string): boolean | null
+    readyState(clientId: string): boolean
 
-    resume(clientId: string): boolean | null
+    resume(clientId: string): boolean
 
-    setEncoding(clientId: string, encoding: ('utf8' | 'ascii' | 'base64' | 'hex' | 'binary' | 'utf16le' | 'ucs2') = 'utf8'): boolean | null
+    setEncoding(clientId: string, encoding: ('utf8' | 'ascii' | 'base64' | 'hex' | 'binary' | 'utf16le' | 'ucs2') = 'utf8'): boolean
 
-    setKeepAlive(clientId: string, enable: boolean = false, initialDelay: number = 0): boolean | null
+    setKeepAlive(clientId: string, enable: boolean = false, initialDelay: number = 0): boolean
 
-    setNoDelay(clientId: string, noDelay: boolean = true): boolean | null
+    setNoDelay(clientId: string, noDelay: boolean = true): boolean
 /* Socket Methods End */
 
-url(clientId: string): URL | null // https://developer.mozilla.org/en-US/docs/Web/API/URL
+url(clientId: string): URL // https://developer.mozilla.org/en-US/docs/Web/API/URL
 
-close(clientId: string): boolean | null
+close(clientId: string): boolean
 
-ping(clientId: string, pongTimeout?: number): boolean | null
+ping(clientId: string, pongTimeout?: number): boolean
 
 send(
     clientId: string,
     data: string | Buffer, // Message content (if string, opcode 0x1, if not, 0x2)
     encoding: ('utf8' | 'ascii' | 'base64' | 'hex' | 'binary' | 'utf16le' | 'ucs2') = 'utf8'
-): boolean | null
+): boolean
 ```
 
 ```typescript
@@ -138,7 +138,19 @@ const WebSocket = require('@jadsonlucena/websocket'); // npm i @jadsonlucena/web
 
 var webSocket = new WebSocket(HttpServer);
 
-webSocket.on('open', clientId => console.log('Connect', clientId, webSocket.url(clientId)));
+webSocket.on('open', clientId => {
+
+    try {
+
+        console.log('Connect', clientId, webSocket.url(clientId));
+
+    } catch (err) {
+
+        console.error(err);
+
+    }
+
+});
 
 webSocket.on('close', (clientId, e) => console.log('Close', clientId, e));
 
@@ -149,11 +161,19 @@ webSocket.on('/chat', (clientId, data) => {
 
     console.log('Data', clientId, data);
 
-    // Single Client
-    webSocket.send(clientId, data);
+    try {
 
-    // Broadcast
-    webSocket.clients.forEach(id => webSocket.send(id, data));
+        // Single Client
+        webSocket.send(clientId, data);
+
+        // Broadcast
+        webSocket.clients.forEach(id => webSocket.send(id, data));
+
+    } catch (err) {
+
+        console.error(err);
+
+    }
 
 });
 ```

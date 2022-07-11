@@ -556,7 +556,7 @@ class WebSocket extends EventEmitter {
 
         } else {
 
-            return null;
+            throw new ReferenceError('Not Found');
 
         }
 
@@ -570,7 +570,7 @@ class WebSocket extends EventEmitter {
 
         } else {
 
-            return null;
+            throw new ReferenceError('Not Found');
 
         }
 
@@ -584,7 +584,7 @@ class WebSocket extends EventEmitter {
 
         } else {
 
-            return null;
+            throw new ReferenceError('Not Found');
 
         }
 
@@ -600,7 +600,7 @@ class WebSocket extends EventEmitter {
 
         } else {
 
-            return null;
+            throw new ReferenceError('Not Found');
 
         }
 
@@ -614,7 +614,7 @@ class WebSocket extends EventEmitter {
 
         } else {
 
-            return null;
+            throw new ReferenceError('Not Found');
 
         }
 
@@ -630,7 +630,7 @@ class WebSocket extends EventEmitter {
 
         } else {
 
-            return null;
+            throw new ReferenceError('Not Found');
 
         }
 
@@ -644,7 +644,7 @@ class WebSocket extends EventEmitter {
 
         } else {
 
-            return null;
+            throw new ReferenceError('Not Found');
 
         }
 
@@ -658,7 +658,7 @@ class WebSocket extends EventEmitter {
 
         } else {
 
-            return null;
+            throw new ReferenceError('Not Found');
 
         }
 
@@ -672,7 +672,7 @@ class WebSocket extends EventEmitter {
 
         } else {
 
-            return null;
+            throw new ReferenceError('Not Found');
 
         }
 
@@ -687,7 +687,7 @@ class WebSocket extends EventEmitter {
 
         } else {
 
-            return null;
+            throw new ReferenceError('Not Found');
 
         }
 
@@ -717,7 +717,7 @@ class WebSocket extends EventEmitter {
 
         } else {
 
-            return null;
+            throw new ReferenceError('Not Found');
 
         }
 
@@ -746,7 +746,7 @@ class WebSocket extends EventEmitter {
 
         } else {
 
-            return null;
+            throw new ReferenceError('Not Found');
 
         }
 
@@ -774,7 +774,7 @@ class WebSocket extends EventEmitter {
 
         } else {
 
-            return null;
+            throw new ReferenceError('Not Found');
 
         }
 
